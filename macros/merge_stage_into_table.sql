@@ -6,21 +6,6 @@
     stage_id="ACTIVE",
     truncate_before_merge=False
 ) %}
-    {#---------------------------------------------
-      Macro: merge_stage_into_table
-      Description:
-        Dynamically merges staged JSON/CSV data into a target Snowflake table,
-        avoiding duplicates by comparing metadata fields.
-        Supports optional truncation and logs execution details.
-      Params:
-        - target_table: fully qualified table (e.g. RAW.R_FOURKITES_JSON_PAYLOAD)
-        - stage_path: stage and subpath (e.g. @RAW.STG_FOURKITES_S3/active)
-        - file_format: file format name (e.g. RAW.FF_JSON_FOURKITES)
-        - system_id: source system tag (default: FOURKITES)
-        - stage_id: stage identifier (ACTIVE, ARCHIVE, etc.)
-        - truncate_before_merge: boolean to truncate target table before merging
-    ----------------------------------------------#}
-
     {{ log("🟦 [merge_stage_into_table] Starting process for: " ~ target_table, info=True) }}
     {{ log("📂 Stage: " ~ stage_path ~ " | Format: " ~ file_format, info=True) }}
     {{ log("🔖 System ID: " ~ system_id ~ " | Stage ID: " ~ stage_id, info=True) }}
@@ -31,9 +16,7 @@
 
     {% if truncate_before_merge %}
         {{ log("🚨 Truncating table before merge: " ~ target_table, info=True) }}
-        {% set truncate_sql %}
-            TRUNCATE TABLE {{ target_table }};
-        {% endset %}
+        {% set truncate_sql %} TRUNCATE TABLE {{ target_table }}; {% endset %}
         {{ run_query(truncate_sql) }}
     {% endif %}
 
@@ -78,12 +61,10 @@
     {{ log("⚙️ Executing MERGE statement...", info=True) }}
     {% set merge_result = run_query(merge_sql) %}
 
-    {# ✅ Get DML row counts from query history instead of RESULT_SCAN #}
+    {# ✅ Use rows_affected (universal), fallback if specific columns don't exist #}
     {% set count_sql %}
         SELECT 
-            COALESCE(rows_inserted, 0) AS rows_inserted,
-            COALESCE(rows_updated, 0) AS rows_updated,
-            COALESCE(rows_deleted, 0) AS rows_deleted
+            COALESCE(rows_inserted, rows_produced, 0) AS rows_inserted
         FROM TABLE(information_schema.query_history_by_session())
         WHERE query_id = LAST_QUERY_ID()
         ORDER BY start_time DESC
@@ -91,21 +72,16 @@
     {% endset %}
 
     {% set count_result = run_query(count_sql) %}
-    {% set inserted_count, updated_count, deleted_count = (0, 0, 0) %}
-
-    {% if count_result and count_result.columns|length >= 3 %}
+    {% set inserted_count = 0 %}
+    {% if count_result and count_result.columns|length > 0 %}
         {% set inserted_count = count_result.columns[0].values()[0] or 0 %}
-        {% set updated_count  = count_result.columns[1].values()[0] or 0 %}
-        {% set deleted_count  = count_result.columns[2].values()[0] or 0 %}
     {% endif %}
 
     {% set end_time = modules.datetime.datetime.now() %}
     {% set duration = (end_time - start_time).total_seconds() %}
 
     {{ log("✅ Merge completed successfully for " ~ target_table, info=True) }}
-    {{ log("📊 Rows inserted: " ~ inserted_count ~ 
-           " | updated: " ~ updated_count ~ 
-           " | deleted: " ~ deleted_count, info=True) }}
+    {{ log("📊 Rows inserted (or affected): " ~ inserted_count, info=True) }}
     {{ log("⏱️ Duration: " ~ duration ~ " seconds", info=True) }}
     {{ log("------------------------------------------------------------", info=True) }}
 {% endmacro %}
