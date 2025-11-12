@@ -7,8 +7,8 @@
 }}
 
 select 
-    $1:fourKitesShipmentID::varchar as SHIPMENT_ID,
-    {{ strip_leading_zeros_if_numeric($1:loadNumber::varchar) }} as LOAD_NUMBER,
+    $1:fourKitesShipmentID::varchar as SHIPMENT_ID,    
+    {{ strip_leading_zeros_if_numeric("$1:loadNumber::varchar") }} as LOAD_NUMBER,
     $1:status::varchar as STATUS,
     $1:SCAC::varchar as SCAC,
     $1:totalDistanceInMeters::number as TOTAL_DISTANCE_M,
@@ -22,6 +22,7 @@ select
     _SYSTEM_ID,
     _STAGE_ID,
     _META_FILENAME,
+    _META_ROW_NUMBER,
     md5(to_json($1)) as _META_ROW_HASH,
     _META_FILE_LAST_MODIFIED,
     _META_INGESTION_TIMESTAMP
