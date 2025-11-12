@@ -8,7 +8,7 @@
 
 select 
     $1:fourKitesShipmentID::varchar as SHIPMENT_ID,
-    $1:loadNumber::varchar as LOAD_NUMBER,
+    {{ strip_leading_zeros_if_numeric($1:loadNumber::varchar) }} as LOAD_NUMBER,
     $1:status::varchar as STATUS,
     $1:SCAC::varchar as SCAC,
     $1:totalDistanceInMeters::number as TOTAL_DISTANCE_M,
