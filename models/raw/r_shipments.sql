@@ -1,8 +1,7 @@
 {{ 
   config(
     materialized='incremental',
-    unique_key=['SHIPMENT_ID', '_META_FILENAME', '_META_ROW_NUMBER'],
-    schema='raw',
+    unique_key=['SHIPMENT_ID', '_META_FILENAME', '_META_ROW_HASH'],
     incremental_strategy='merge'
   )
 }}
@@ -23,7 +22,7 @@ select
     _SYSTEM_ID,
     _STAGE_ID,
     _META_FILENAME,
-    _META_ROW_NUMBER,
+    md5(to_json($1)) as _META_ROW_HASH,
     _META_FILE_LAST_MODIFIED,
     _META_INGESTION_TIMESTAMP
 from {{ source('raw','r_fourkites_json_payload') }}
