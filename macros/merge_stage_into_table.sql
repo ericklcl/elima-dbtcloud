@@ -20,12 +20,8 @@
         - stage_id: stage identifier (ACTIVE, ARCHIVE, etc.)
         - truncate_before_merge: boolean to truncate target table before merging
     ----------------------------------------------#}
-    {{
-        log(
-            "🟦 [merge_stage_into_table] Starting process for: " ~ target_table,
-            info=True,
-        )
-    }}
+
+    {{ log("🟦 [merge_stage_into_table] Starting process for: " ~ target_table, info=True) }}
     {{ log("📂 Stage: " ~ stage_path ~ " | Format: " ~ file_format, info=True) }}
     {{ log("🔖 System ID: " ~ system_id ~ " | Stage ID: " ~ stage_id, info=True) }}
     {{ log("🧹 Truncate before merge: " ~ truncate_before_merge, info=True) }}
@@ -82,26 +78,34 @@
     {{ log("⚙️ Executing MERGE statement...", info=True) }}
     {% set merge_result = run_query(merge_sql) %}
 
-    {# Count inserted rows from the previous statement #}
+    {# ✅ Get DML row counts from query history instead of RESULT_SCAN #}
     {% set count_sql %}
-        SELECT ROWS_INSERTED
-        FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))
-        WHERE ROWS_INSERTED IS NOT NULL
+        SELECT 
+            COALESCE(rows_inserted, 0) AS rows_inserted,
+            COALESCE(rows_updated, 0) AS rows_updated,
+            COALESCE(rows_deleted, 0) AS rows_deleted
+        FROM TABLE(information_schema.query_history_by_session())
+        WHERE query_id = LAST_QUERY_ID()
+        ORDER BY start_time DESC
         LIMIT 1;
     {% endset %}
 
     {% set count_result = run_query(count_sql) %}
-    {% set inserted_count = 0 %}
-    {% if count_result and count_result.columns[0].values()[0] is not none %}
-        {% set inserted_count = count_result.columns[0].values()[0] %}
+    {% set inserted_count, updated_count, deleted_count = (0, 0, 0) %}
+
+    {% if count_result and count_result.columns|length >= 3 %}
+        {% set inserted_count = count_result.columns[0].values()[0] or 0 %}
+        {% set updated_count  = count_result.columns[1].values()[0] or 0 %}
+        {% set deleted_count  = count_result.columns[2].values()[0] or 0 %}
     {% endif %}
 
     {% set end_time = modules.datetime.datetime.now() %}
     {% set duration = (end_time - start_time).total_seconds() %}
 
     {{ log("✅ Merge completed successfully for " ~ target_table, info=True) }}
-    {{ log("📊 Rows inserted: " ~ inserted_count, info=True) }}
+    {{ log("📊 Rows inserted: " ~ inserted_count ~ 
+           " | updated: " ~ updated_count ~ 
+           " | deleted: " ~ deleted_count, info=True) }}
     {{ log("⏱️ Duration: " ~ duration ~ " seconds", info=True) }}
     {{ log("------------------------------------------------------------", info=True) }}
-
 {% endmacro %}
