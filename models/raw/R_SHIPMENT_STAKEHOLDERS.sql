@@ -1,7 +1,7 @@
 {{
   config(
     materialized='incremental',
-    unique_key= ['SHIPMENT_ID', 'PARTY_ROLE'],
+    unique_key= ['SHIPMENT_ID', 'PARTY_ROLE', '_STAGE_ID'],
     incremental_strategy='merge'
   )
 }}
