@@ -31,4 +31,4 @@ select
     -- Hash Row
     md5(to_json($1)) as _META_ROW_HASH
 
-from {{ source('raw','r_fourkites_json_payload') }}
+from {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }}

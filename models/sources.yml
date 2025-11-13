@@ -1,11 +1,11 @@
 version: 2
 
 sources:
-  - name: raw
+  - name: RAW
     database: DEMO                # or your database name (e.g. "RISE_DEV")
     schema: RAW                   # schema where your table is
     tables:
-      - name: r_fourkites_json_payload
+      - name: R_FOURKITES_JSON_PAYLOAD
         description: >
           Raw JSON payload ingested from FourKites API containing shipment-level information.
           Each row represents one record from the FourKites stage file.
