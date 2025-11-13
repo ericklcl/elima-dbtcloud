@@ -1,7 +1,7 @@
 {{
   config(
     materialized='incremental',
-    unique_key='SHIPMENT_ID',
+    unique_key=['SHIPMENT_ID', '_STAGE_ID'],
     incremental_strategy='merge'
   )
 }}
@@ -28,7 +28,17 @@ select
     _META_FILE_LAST_MODIFIED,
     _META_INGESTION_TIMESTAMP,
 
-    -- Hash Row
+    -- Row Hash
     md5(to_json($1)) as _META_ROW_HASH
 
-from {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }}
+from {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }} as SRC
+
+{% if is_incremental() %}
+where NOT EXISTS (
+    select 1
+    from {{ this }} as BASE
+    where  SRC._META_FILENAME = BASE._META_FILENAME
+      and SRC._META_FILE_LAST_MODIFIED = BASE._META_FILE_LAST_MODIFIED
+      and SRC.SHIPMENT_ID = BASE.SHIPMENT_ID
+)
+{% endif %}
