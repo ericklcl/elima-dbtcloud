@@ -6,6 +6,7 @@
   )
 }}
 
+WITH STAGED AS (
 select 
     $1:fourKitesShipmentID::varchar as SHIPMENT_ID,
     {{ strip_leading_zeros_if_numeric("$1:loadNumber::varchar") }} as LOAD_NUMBER,
@@ -32,7 +33,27 @@ select
     md5(to_json($1)) as _META_ROW_HASH
 
 from {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }} as SRC
-
+)
+select
+    SRC.SHIPMENT_ID,
+    SRC.LOAD_NUMBER,
+    SRC.STATUS,
+    SRC.SCAC,
+    SRC.TOTAL_DISTANCE_M,
+    SRC.REMAINING_DISTANCE_M,
+    SRC.FOURKITES_ETA_TZ,
+    SRC.TIME_ZONE,
+    SRC.NUM_DELIVERY_STOPS,
+    SRC.DELETED,
+    SRC.DELETED_BY,
+    SRC.DELETED_AT_TZ,
+    SRC._SYSTEM_ID,
+    SRC._STAGE_ID,
+    SRC._META_FILENAME,
+    SRC._META_FILE_LAST_MODIFIED,
+    SRC._META_INGESTION_TIMESTAMP,
+    SRC._META_ROW_HASH
+FROM STAGED AS SRC
 {% if is_incremental() %}
 where NOT EXISTS (
     select 1
