@@ -1,13 +1,13 @@
-{{ 
+{{
   config(
     materialized='incremental',
-    unique_key=['SHIPMENT_ID', '_META_FILENAME', '_META_ROW_HASH'],
+    unique_key='SHIPMENT_ID',
     incremental_strategy='merge'
   )
 }}
 
 select 
-    $1:fourKitesShipmentID::varchar as SHIPMENT_ID,    
+    $1:fourKitesShipmentID::varchar as SHIPMENT_ID,
     {{ strip_leading_zeros_if_numeric("$1:loadNumber::varchar") }} as LOAD_NUMBER,
     $1:status::varchar as STATUS,
     $1:SCAC::varchar as SCAC,
@@ -19,11 +19,16 @@ select
     $1:deleted::boolean as DELETED,
     $1:deletedBy::varchar as DELETED_BY,
     to_timestamp_tz($1:deletedAt::varchar) as DELETED_AT_TZ,
+
+    -- Metadata
     _SYSTEM_ID,
     _STAGE_ID,
     _META_FILENAME,
     _META_ROW_NUMBER,
-    md5(to_json($1)) as _META_ROW_HASH,
     _META_FILE_LAST_MODIFIED,
-    _META_INGESTION_TIMESTAMP
+    _META_INGESTION_TIMESTAMP,
+
+    -- Hash Row
+    md5(to_json($1)) as _META_ROW_HASH
+
 from {{ source('raw','r_fourkites_json_payload') }}
