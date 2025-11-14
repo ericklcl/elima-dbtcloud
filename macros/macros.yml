@@ -1,0 +1,55 @@
+version: 2
+
+macros:
+  - name: apply_table_and_column_comments
+    description: Applies table and column comments from YAML schema to Snowflake objects. Designed for use in post-hooks to automatically document tables after creation.
+    arguments:
+      - name: model
+        type: relation
+        description: The dbt model relation object (usually 'this' in post-hooks)
+
+  - name: generate_schema_name
+    description: Overrides dbt's default schema naming behavior. Uses custom schema name directly instead of concatenating with target schema.
+    arguments:
+      - name: custom_schema_name
+        type: string
+        description: The custom schema name from model config
+      - name: node
+        type: object
+        description: The dbt node object (automatically passed by dbt)
+
+  - name: merge_stage_into_table
+    description: Merges data from external stage into target table with metadata tracking. Updates existing files if modified timestamp changed, inserts new files.
+    arguments:
+      - name: target_table
+        type: string
+        description: Destination table name
+      - name: stage_path
+        type: string
+        description: Snowflake external stage path
+      - name: file_format
+        type: string
+        description: File format name for parsing
+      - name: system_id
+        type: string
+        description: Source system identifier (default 'FOURKITES')
+      - name: stage_id
+        type: string
+        description: Processing stage identifier (default 'ACTIVE')
+      - name: truncate_before_merge
+        type: boolean
+        description: Clear table before merge operation (default false)
+
+  - name: normalize_stop_reference_id
+    description: Normalizes stop reference IDs by removing leading zeros from numeric prefix. Processes IDs in format "NUMBER_SUFFIX".
+    arguments:
+      - name: s
+        type: string
+        description: The stop reference ID to normalize
+
+  - name: strip_leading_zeros_if_numeric
+    description: Strips leading zeros from strings that contain only digits. Non-numeric strings and null values are returned unchanged.
+    arguments:
+      - name: value
+        type: string
+        description: The input value to process (column reference, SQL expression, or literal string)

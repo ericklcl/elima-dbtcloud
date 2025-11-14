@@ -119,3 +119,55 @@ models:
         description: >
           MD5 hash of the raw JSON record, used for tracking changes
           and ensuring deterministic incremental loading.
+
+
+  - name: R_SHIPMENT_DELIVERY_NUMBERS
+    description: >
+      Extracts and normalizes purchase order numbers from FourKites shipments.
+      Each row represents a delivery number associated with a shipment, flattening
+      the nested purchase order numbers array into individual records with sequence
+      information and normalized delivery numbers.
+    
+    columns:
+      - name: SHIPMENT_ID
+        description: >
+          Unique shipment identifier from the FourKites payload.
+      - name: DELIVERY_SEQ
+        description: >
+          Sequential number indicating the order of the delivery number 
+          within the purchase order numbers array (1-based index).
+      - name: DELIVERY_NUMBER
+        description: >
+          Individual delivery/purchase order number with leading zeros 
+          stripped if the value is purely numeric.
+      - name: PURCHASE_ORDER_NUMBERS
+        description: >
+          Complete purchase order numbers array from the original payload 
+          for reference and auditing purposes.
+
+      # Metadata columns
+      - name: _SYSTEM_ID
+        description: >
+          Source system identifier assigned during data ingestion.
+      - name: _STAGE_ID
+        description: >
+          Logical ingestion stage that produced the record
+          (e.g., ACTIVE, HIST, DLQ).
+      - name: _META_FILENAME
+        description: >
+          Name of the staged file from which the record was ingested.
+      - name: _META_ROW_NUMBER
+        description: >
+          Sequential row number representing the record's position
+          inside the original staged file.
+      - name: _META_FILE_LAST_MODIFIED
+        description: >
+          Timestamp indicating when the source file was last modified
+          in external storage.
+      - name: _META_INGESTION_TIMESTAMP
+        description: >
+          Timestamp indicating when the record was ingested into Snowflake.
+      - name: _META_ROW_HASH
+        description: >
+          MD5 hash of the raw JSON record, used for tracking changes
+          and ensuring deterministic incremental loading.

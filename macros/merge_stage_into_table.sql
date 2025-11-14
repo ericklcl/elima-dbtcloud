@@ -1,3 +1,17 @@
+{#
+    Merges data from external stage into target table with metadata tracking.
+    
+    Updates existing files if modified timestamp changed, inserts new files.
+    Optionally truncates target table before merge operation.
+    
+    Parameters:
+    - target_table: Destination table name
+    - stage_path: Snowflake external stage path 
+    - file_format: File format name for parsing
+    - system_id: Source system identifier (default: "FOURKITES")
+    - stage_id: Processing stage identifier (default: "ACTIVE")
+    - truncate_before_merge: Clear table before merge (default: False)
+#}
 {% macro merge_stage_into_table(
     target_table,
     stage_path,
@@ -14,6 +28,7 @@
 
     {% set start_time = modules.datetime.datetime.now() %}
 
+    {# Truncate table if requested #}
     {% if truncate_before_merge %}
         {{ log("🚨 Truncating table before merge: " ~ target_table, info=True) }}
         {% set truncate_sql %} TRUNCATE TABLE {{ target_table }}; {% endset %}
@@ -36,7 +51,7 @@
         ) AS S
         ON T._META_FILENAME = S._META_FILENAME
         
-        -- 🔄 UPDATE se o arquivo for o mesmo mas mudou o timestamp
+        -- Update if file exists but timestamp changed
         WHEN MATCHED 
          AND T._META_FILE_LAST_MODIFIED <> S._META_FILE_LAST_MODIFIED THEN
           UPDATE SET
@@ -47,7 +62,7 @@
             _META_FILE_LAST_MODIFIED = S._META_FILE_LAST_MODIFIED,
             _META_INGESTION_TIMESTAMP = S._META_INGESTION_TIMESTAMP
 
-        -- 🆕 INSERT se o arquivo não existe
+        -- Insert new files
         WHEN NOT MATCHED THEN
           INSERT (
             PAYLOAD,
@@ -69,6 +84,7 @@
           );
     {% endset %}
 
+    {# Execute the merge operation #}
     {{ log("⚙️ Executing MERGE statement...", info=True) }}
     {% set merge_result = run_query(merge_sql) %}
 
