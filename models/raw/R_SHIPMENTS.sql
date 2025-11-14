@@ -2,7 +2,7 @@
     materialized = 'incremental',
     unique_key = ['SHIPMENT_ID', '_STAGE_ID'],
     incremental_strategy = 'merge',
-    post_hook = "{{ apply_table_and_column_comments(this) }}"
+    post_hook="{{ apply_table_and_column_comments(this) }}"
 ) }}
 
 WITH STAGED AS (

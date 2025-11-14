@@ -1,25 +1,33 @@
 {% macro apply_table_and_column_comments(model) %}
-    /*
-        Applies physical comments in Snowflake for:
-        - The table (using the model description)
-        - Each column (using column descriptions)
-    */
+    {# 
+        Safe version: always returns a valid SQL string.
+        Prevents dbt from crashing when no descriptions exist. 
+    #}
 
-    {% set db = model.database %}
-    {% set schema = model.schema %}
-    {% set table = model.name %}
+    {% set statements = [] %}
 
-    {# ----------- 1. COMMENT ON TABLE ----------- #}
+    {# ---- Table comment ---- #}
     {% if model.description %}
-        COMMENT ON TABLE {{ db }}.{{ schema }}.{{ table }}
-            IS '{{ model.description | replace("'", "''") }}';
+        {% do statements.append(
+            "COMMENT ON TABLE " ~ model.database ~ "." ~ model.schema ~ "." ~ model.name ~
+            " IS '" ~ (model.description | replace(\"'\", \"''\")) ~ "'"
+        ) %}
     {% endif %}
 
-    {# ----------- 2. COMMENT ON COLUMNS ----------- #}
+    {# ---- Column comments ---- #}
     {% for column in model.columns %}
         {% if column.description %}
-            COMMENT ON COLUMN {{ db }}.{{ schema }}.{{ table }}.{{ column.name }}
-                IS '{{ column.description | replace("'", "''") }}';
+            {% do statements.append(
+                "COMMENT ON COLUMN " ~ model.database ~ "." ~ model.schema ~ "." ~ model.name ~ "." ~ column.name ~
+                " IS '" ~ (column.description | replace(\"'\", \"''\")) ~ "'"
+            ) %}
         {% endif %}
     {% endfor %}
+
+    {# ---- Prevent empty SQL (THE IMPORTANT FIX) ---- #}
+    {% if statements | length == 0 %}
+        {% do statements.append("/* No comments to apply */") %}
+    {% endif %}
+
+    {{ statements | join(';\n') }}
 {% endmacro %}
