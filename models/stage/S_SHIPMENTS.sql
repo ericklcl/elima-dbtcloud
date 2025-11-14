@@ -1,6 +1,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = 'SHIPMENT_ID',
+    schema = 'STAGE',
     incremental_strategy = 'merge',
     merge_update_columns = 'all',
     post_hook = "{{ apply_table_and_column_comments(this) }}"

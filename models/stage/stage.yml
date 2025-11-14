@@ -7,54 +7,43 @@ models:
     columns:
       - name: SHIPMENT_ID
         description: "Unique shipment identifier. One row per SHIPMENT_ID in this model."
-
       - name: LOAD_NUMBER
         description: "Normalized load number."
-
       - name: STATUS
         description: "Cleaned, uppercase shipment status."
-
       - name: SCAC
         description: "Carrier code."
-
       - name: TOTAL_DISTANCE_M
         description: "Numeric total distance."
-
       - name: REMAINING_DISTANCE_M
         description: "Numeric remaining distance."
-
       - name: FOURKITES_ETA_TZ
         description: "Standardized ETA timestamp."
-
       - name: DELETED_AT_TZ
         description: "Timestamp of deletion."
-
       - name: TIME_ZONE
         description: "Timezone reference."
-
       - name: NUM_DELIVERY_STOPS
         description: "Number of delivery stops."
-
       - name: IS_DELETED
         description: "Flag marking deleted shipments."
-
       - name: DELETED_BY
         description: "Entity that deleted the shipment."
 
+      # Metadata columns
+      - name: _SYSTEM_ID
+        description: "System identifier assigned during ingestion."
+      - name: _STAGE_ID
+        description: "Stage ID identifying which ingestion stage produced this record."
+      - name: _META_FILENAME
+        description: "Source filename from the external stage."
+      - name: _META_ROW_NUMBER
+        description: "Original row number from the staged file."
       - name: _META_FILE_LAST_MODIFIED
         description: "Last modified timestamp of the source file."
-
       - name: _META_INGESTION_TIMESTAMP
-        description: "Ingestion timestamp."
-
-      - name: _META_FILENAME
-        description: "Source filename."
-
-      - name: _META_ROW_NUMBER
-        description: "Row number from the source file."
-
+        description: "Timestamp when the record was ingested."
       - name: _META_ROW_HASH
-        description: "MD5 hash of JSON payload."
-
+        description: "MD5 hash of the original JSON payload for deduplication."
       - name: _PROCESSED_AT
         description: "Timestamp of Silver-level processing."
