@@ -1,40 +1,42 @@
-{{
-  config(
-    materialized='incremental',
-    unique_key=['SHIPMENT_ID', '_STAGE_ID'],
-    incremental_strategy='merge'
-  )
-}}
+{{ config(
+    materialized = 'incremental',
+    unique_key = ['SHIPMENT_ID', '_STAGE_ID'],
+    incremental_strategy = 'merge',
+    post_hook = "{{ apply_table_and_column_comments(this) }}"
+) }}
 
 WITH STAGED AS (
-select 
-    $1:fourKitesShipmentID::varchar as SHIPMENT_ID,
-    {{ strip_leading_zeros_if_numeric("$1:loadNumber::varchar") }} as LOAD_NUMBER,
-    $1:status::varchar as STATUS,
-    $1:SCAC::varchar as SCAC,
-    $1:totalDistanceInMeters::number as TOTAL_DISTANCE_M,
-    $1:remainingDistanceInMeters::number as REMAINING_DISTANCE_M,
-    to_timestamp_tz($1:fourKitesETA::varchar) as FOURKITES_ETA_TZ,
-    $1:timeZone::varchar as TIME_ZONE,
-    $1:numberOfDeliveryStops::number as NUM_DELIVERY_STOPS,
-    $1:deleted::boolean as DELETED,
-    $1:deletedBy::varchar as DELETED_BY,
-    to_timestamp_tz($1:deletedAt::varchar) as DELETED_AT_TZ,
 
-    -- Metadata
-    _SYSTEM_ID,
-    _STAGE_ID,
-    _META_FILENAME,
-    _META_ROW_NUMBER,
-    _META_FILE_LAST_MODIFIED,
-    _META_INGESTION_TIMESTAMP,
+    SELECT
+        -- Business Fields
+        $1:fourKitesShipmentID::varchar AS SHIPMENT_ID,
+        {{ strip_leading_zeros_if_numeric("$1:loadNumber::varchar") }} AS LOAD_NUMBER,
+        $1:status::varchar AS STATUS,
+        $1:SCAC::varchar AS SCAC,
+        $1:totalDistanceInMeters::number AS TOTAL_DISTANCE_M,
+        $1:remainingDistanceInMeters::number AS REMAINING_DISTANCE_M,
+        TO_TIMESTAMP_TZ($1:fourKitesETA::varchar) AS FOURKITES_ETA_TZ,
+        $1:timeZone::varchar AS TIME_ZONE,
+        $1:numberOfDeliveryStops::number AS NUM_DELIVERY_STOPS,
+        $1:deleted::boolean AS DELETED,
+        $1:deletedBy::varchar AS DELETED_BY,
+        TO_TIMESTAMP_TZ($1:deletedAt::varchar) AS DELETED_AT_TZ,
 
-    -- Row Hash
-    md5(to_json($1)) as _META_ROW_HASH
+        -- Metadata
+        _SYSTEM_ID,
+        _STAGE_ID,
+        _META_FILENAME,
+        _META_ROW_NUMBER,
+        _META_FILE_LAST_MODIFIED,
+        _META_INGESTION_TIMESTAMP,
 
-from {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }} as SRC
+        -- Row Hash
+        MD5(TO_JSON($1)) AS _META_ROW_HASH
+
+    FROM {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }} AS SRC
 )
-select
+
+SELECT
     SRC.SHIPMENT_ID,
     SRC.LOAD_NUMBER,
     SRC.STATUS,
@@ -54,13 +56,16 @@ select
     SRC._META_FILE_LAST_MODIFIED,
     SRC._META_INGESTION_TIMESTAMP,
     SRC._META_ROW_HASH
+
 FROM STAGED AS SRC
+
 {% if is_incremental() %}
-where NOT EXISTS (
-    select 1
-    from {{ this }} as BASE
-    where  SRC._META_FILENAME = BASE._META_FILENAME
-      and SRC._META_FILE_LAST_MODIFIED = BASE._META_FILE_LAST_MODIFIED
-      and SRC.SHIPMENT_ID = BASE.SHIPMENT_ID
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM {{ this }} AS BASE
+    WHERE SRC._META_FILENAME = BASE._META_FILENAME
+      AND SRC._META_FILE_LAST_MODIFIED = BASE._META_FILE_LAST_MODIFIED
+      AND SRC.SHIPMENT_ID = BASE.SHIPMENT_ID
+      AND SRC._STAGE_ID = BASE._STAGE_ID
 )
 {% endif %}
