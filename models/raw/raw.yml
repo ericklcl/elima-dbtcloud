@@ -2,46 +2,120 @@ version: 2
 
 models:
   - name: R_SHIPMENTS
-    description: "Raw-normalized FourKites shipments table, ingested incrementally from JSON payloads. Includes business fields, metadata, and row-level hashing for deduplication."
+    description: >
+      Raw-normalized FourKites shipments table, ingested incrementally from JSON payloads. 
+      Includes business fields, metadata, and row-level hashing for deduplication.
+    
     columns:
-
       - name: SHIPMENT_ID
-        description: "Unique shipment identifier from the FourKites payload."
+        description: >
+          Unique shipment identifier from the FourKites payload.
       - name: LOAD_NUMBER
-        description: "Load number with leading zeros stripped if numeric."
+        description: >
+          Load number with leading zeros stripped if numeric.
       - name: STATUS
-        description: "Shipment status according to FourKites."
+        description: > 
+          Shipment status according to FourKites.
       - name: SCAC
-        description: "Standard Carrier Alpha Code identifying the carrier."
+        description: >
+          Standard Carrier Alpha Code identifying the carrier.
       - name: TOTAL_DISTANCE_M
-        description: "Total shipment distance in meters."
+        description: >
+          Total shipment distance in meters.
       - name: REMAINING_DISTANCE_M
-        description: "Remaining shipment distance in meters."
+        description: >
+          Remaining shipment distance in meters.
       - name: FOURKITES_ETA_TZ
-        description: "Estimated Time of Arrival with time zone information."
+        description: >
+          Estimated Time of Arrival with time zone information.
       - name: TIME_ZONE
-        description: "Time zone used for ETA."
+        description: >
+          Time zone used for ETA.
       - name: NUM_DELIVERY_STOPS
-        description: "The number of delivery stops for the shipment."
+        description: >
+          The number of delivery stops for the shipment.
       - name: DELETED
-        description: "Indicates whether the shipment has been flagged as deleted."
+        description: >
+          Indicates whether the shipment has been flagged as deleted.
       - name: DELETED_BY
-        description: "User or system that deleted the shipment."
+        description: >
+          User or system that deleted the shipment.
       - name: DELETED_AT_TZ
-        description: "Timestamp when the shipment was deleted (if applicable)."
+        description: >
+          Timestamp when the shipment was deleted (if applicable).
       
       # Metadata columns
       - name: _SYSTEM_ID
-        description: "System identifier assigned during ingestion."
+        description: >
+          Source system identifier assigned during data ingestion.
       - name: _STAGE_ID
-        description: "Stage ID identifying which ingestion stage produced this record."
+        description: >
+          Logical ingestion stage that produced the record
+          (e.g., ACTIVE, HIST, DLQ).
       - name: _META_FILENAME
-        description: "Source filename from the external stage."
+        description: >
+          Name of the staged file from which the record was ingested.
       - name: _META_ROW_NUMBER
-        description: "Original row number from the staged file."
+        description: >
+          Sequential row number representing the record’s position
+          inside the original staged file.
       - name: _META_FILE_LAST_MODIFIED
-        description: "Last modified timestamp of the source file."
+        description: >
+          Timestamp indicating when the source file was last modified
+          in external storage.
       - name: _META_INGESTION_TIMESTAMP
-        description: "Timestamp when the record was ingested."
+        description: >
+          Timestamp indicating when the record was ingested into Snowflake.
       - name: _META_ROW_HASH
-        description: "MD5 hash of the original JSON payload for deduplication."
+        description: >
+          MD5 hash of the raw JSON record, used for tracking changes
+          and ensuring deterministic incremental loading.
+
+
+  - name: R_SHIPMENT_STAKEHOLDERS
+    description: >
+      Extracts and flattens stakeholder information from the FourKites raw
+      payload. Each record represents a stakeholder associated with a
+      shipment, expanding the nested `stakeholders` JSON structure into
+      a relational format. One row is produced for each combination of
+      SHIPMENT_ID and PARTY_ROLE, along with ingestion metadata and a
+      row-level hash for traceability.
+
+    columns:
+      - name: SHIPMENT_ID
+        description: >
+          Shipment identifier as provided by the FourKites payload.
+      - name: PARTY_ROLE
+        description: >
+          The stakeholder role within the shipment context
+          (e.g., SHIPPER, CONSIGNEE, CARRIER).
+      - name: PARTY_NAME
+        description: >
+          The name of the stakeholder associated with the given PARTY_ROLE.
+
+      # Metadata columns
+      - name: _SYSTEM_ID
+        description: >
+          Source system identifier assigned during data ingestion.
+      - name: _STAGE_ID
+        description: >
+          Logical ingestion stage that produced the record
+          (e.g., ACTIVE, HIST, DLQ).
+      - name: _META_FILENAME
+        description: >
+          Name of the staged file from which the record was ingested.
+      - name: _META_ROW_NUMBER
+        description: >
+          Sequential row number representing the record’s position
+          inside the original staged file.
+      - name: _META_FILE_LAST_MODIFIED
+        description: >
+          Timestamp indicating when the source file was last modified
+          in external storage.
+      - name: _META_INGESTION_TIMESTAMP
+        description: >
+          Timestamp indicating when the record was ingested into Snowflake.
+      - name: _META_ROW_HASH
+        description: >
+          MD5 hash of the raw JSON record, used for tracking changes
+          and ensuring deterministic incremental loading.
