@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: R_SHIPMENTS
+    description: "Raw-normalized FourKites shipments table, ingested incrementally from JSON payloads. Includes business fields, metadata, and row-level hashing for deduplication."
+    columns:
+
+      - name: SHIPMENT_ID
+        description: "Unique shipment identifier from the FourKites payload."
+
+      - name: LOAD_NUMBER
+        description: "Load number with leading zeros stripped if numeric."
+
+      - name: STATUS
+        description: "Shipment status according to FourKites."
+
+      - name: SCAC
+        description: "Standard Carrier Alpha Code identifying the carrier."
+
+      - name: TOTAL_DISTANCE_M
+        description: "Total shipment distance in meters."
+
+      - name: REMAINING_DISTANCE_M
+        description: "Remaining shipment distance in meters."
+
+      - name: FOURKITES_ETA_TZ
+        description: "Estimated Time of Arrival with time zone information."
+
+      - name: TIME_ZONE
+        description: "Time zone used for ETA."
+
+      - name: NUM_DELIVERY_STOPS
+        description: "The number of delivery stops for the shipment."
+
+      - name: DELETED
+        description: "Indicates whether the shipment has been flagged as deleted."
+
+      - name: DELETED_BY
+        description: "User or system that deleted the shipment."
+
+      - name: DELETED_AT_TZ
+        description: "Timestamp when the shipment was deleted (if applicable)."
+
+      # Metadata columns
+      - name: _SYSTEM_ID
+        description: "System identifier assigned during ingestion."
+
+      - name: _STAGE_ID
+        description: "Stage ID identifying which ingestion stage produced this record."
+
+      - name: _META_FILENAME
+        description: "Source filename from the external stage."
+
+      - name: _META_ROW_NUMBER
+        description: "Original row number from the staged file."
+
+      - name: _META_FILE_LAST_MODIFIED
+        description: "Last modified timestamp of the source file."
+
+      - name: _META_INGESTION_TIMESTAMP
+        description: "Timestamp when the record was ingested."
+
+      - name: _META_ROW_HASH
+        description: "MD5 hash of the original JSON payload for deduplication."

@@ -1,0 +1,60 @@
+version: 2
+
+models:
+  - name: S_SHIPMENTS
+    description: "Silver-normalized FourKites shipments table with exactly one record per SHIPMENT_ID, representing the most recent state."
+
+    columns:
+      - name: SHIPMENT_ID
+        description: "Unique shipment identifier. One row per SHIPMENT_ID in this model."
+
+      - name: LOAD_NUMBER
+        description: "Normalized load number."
+
+      - name: STATUS
+        description: "Cleaned, uppercase shipment status."
+
+      - name: SCAC
+        description: "Carrier code."
+
+      - name: TOTAL_DISTANCE_M
+        description: "Numeric total distance."
+
+      - name: REMAINING_DISTANCE_M
+        description: "Numeric remaining distance."
+
+      - name: FOURKITES_ETA_TZ
+        description: "Standardized ETA timestamp."
+
+      - name: DELETED_AT_TZ
+        description: "Timestamp of deletion."
+
+      - name: TIME_ZONE
+        description: "Timezone reference."
+
+      - name: NUM_DELIVERY_STOPS
+        description: "Number of delivery stops."
+
+      - name: IS_DELETED
+        description: "Flag marking deleted shipments."
+
+      - name: DELETED_BY
+        description: "Entity that deleted the shipment."
+
+      - name: _META_FILE_LAST_MODIFIED
+        description: "Last modified timestamp of the source file."
+
+      - name: _META_INGESTION_TIMESTAMP
+        description: "Ingestion timestamp."
+
+      - name: _META_FILENAME
+        description: "Source filename."
+
+      - name: _META_ROW_NUMBER
+        description: "Row number from the source file."
+
+      - name: _META_ROW_HASH
+        description: "MD5 hash of JSON payload."
+
+      - name: _PROCESSED_AT
+        description: "Timestamp of Silver-level processing."
