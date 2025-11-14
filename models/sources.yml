@@ -1,0 +1,55 @@
+version: 2
+
+sources:
+  - name: RAW
+    database: DEMO
+    schema: RAW
+    tables:
+      - name: R_FOURKITES_JSON_PAYLOAD
+        description: >
+          Raw JSON payload ingested from the FourKites API containing
+          shipment-level information. Each row represents one record from
+          the original staged file.
+
+        columns:
+          - name: PAYLOAD
+            description: >
+              Raw JSON payload ingested directly from the FourKites source
+              system. Stores the full JSON structure exactly as received,
+              preserving the original format for auditing, replay, and
+              downstream parsing.
+
+          - name: _SYSTEM_ID
+            description: >
+              Identifier of the source system that produced this record
+              (e.g., FOURKITES).
+
+          - name: _STAGE_ID
+            description: >
+              Logical ingestion stage that produced the record
+              (e.g., ACTIVE, HIST, DLQ).
+
+          - name: _META_FILENAME
+            description: >
+              Name of the file from which the record was ingested, including
+              the original path inside the stage.
+
+          - name: _META_ROW_NUMBER
+            description: >
+              Sequential row number indicating the original position of the
+              record inside the staged file.
+
+          - name: _META_FILE_LAST_MODIFIED
+            description: >
+              Timestamp representing when the source file was last modified
+              in the external storage location.
+
+          - name: _META_INGESTION_TIMESTAMP
+            description: >
+              Timestamp representing when the record was ingested into
+              Snowflake.
+
+          - name: _META_ROW_HASH
+            description: >
+              MD5 hash generated from the raw JSON payload, used for
+              deduplication and change detection.
