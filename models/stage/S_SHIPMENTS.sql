@@ -3,7 +3,7 @@
     unique_key = 'SHIPMENT_ID',
     schema = 'STAGE',
     incremental_strategy = 'merge',
-    merge_update_columns = 'all',
+    on_schema_change = 'sync_all_columns',
     post_hook = "{{ apply_table_and_column_comments(this) }}"
 ) }}
 
@@ -53,8 +53,7 @@ SELECT *
 FROM DEDUP
 
 {% if is_incremental() %}
-WHERE _META_FILE_LAST_MODIFIED > (
-    SELECT COALESCE(MAX(_META_FILE_LAST_MODIFIED), '1900-01-01'::timestamp)
-    FROM {{ this }}
-)
+WHERE _META_FILE_LAST_MODIFIED >
+      (SELECT COALESCE(MAX(_META_FILE_LAST_MODIFIED), '1900-01-01'::timestamp)
+         FROM {{ this }})
 {% endif %}

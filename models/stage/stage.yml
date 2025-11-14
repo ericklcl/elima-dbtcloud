@@ -31,7 +31,6 @@ models:
         description: "Entity that deleted the shipment."
 
       # Metadata columns
-      # Metadata columns
       - name: _SYSTEM_ID
         description: >
           Source system identifier assigned during data ingestion.
