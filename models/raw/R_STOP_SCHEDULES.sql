@@ -1,0 +1,39 @@
+{{ config(
+    materialized = 'incremental',
+    unique_key = ['STOP_ID', '_STAGE_ID'],
+    schema = 'RAW',
+    incremental_strategy = 'merge',
+    post_hook="{{ apply_table_and_column_comments(this) }}"
+) }}
+
+WITH SRC AS (
+    SELECT 
+        $1 AS PAYLOAD,
+        _SYSTEM_ID,
+        _STAGE_ID,
+        _META_FILENAME,
+        _META_ROW_NUMBER,
+        _META_FILE_LAST_MODIFIED,
+        _META_INGESTION_TIMESTAMP,
+    -- Row Hash
+        MD5(TO_JSON($1)) AS _META_ROW_HASH
+
+        
+    FROM FROM {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }}
+)
+SELECT
+    f.VALUE,
+    f.VALUE:fourKitesStopID::VARCHAR AS STOP_ID,       
+    TO_TIMESTAMP_TZ(f.VALUE:schedule:appointmentTime) AS APPOINTMENT_TIME_TZ,
+    TO_TIMESTAMP_TZ(f.VALUE:schedule:appointmentWindowStart::VARCHAR) AS APPOINTMENT_WINDOW_START_TZ,
+    TO_TIMESTAMP_TZ(f.VALUE:schedule:appointmentWindowEnd::VARCHAR) AS APPOINTMENT_WINDOW_END_TZ,
+    TO_TIMESTAMP_TZ(f.VALUE:schedule:wantTime::VARCHAR) AS WANT_TIME_TZ,
+    SRC._SYSTEM_ID,
+    SRC._STAGE_ID,
+    SRC._META_FILENAME,
+    SRC._META_ROW_NUMBER,
+    SRC._META_FILE_LAST_MODIFIED,
+    SRC._META_INGESTION_TIMESTAMP,
+    SRC._META_ROW_HASH
+FROM SRC,
+     LATERAL FLATTEN(input => SRC.PAYLOAD:stops) f;

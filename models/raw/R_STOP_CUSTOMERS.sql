@@ -20,29 +20,11 @@ WITH SRC AS (
         MD5(TO_JSON($1)) AS _META_ROW_HASH
 
         
-    FROM {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }}
+    FROM FROM {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }}
 )
 SELECT
     f.VALUE:fourKitesStopID::VARCHAR AS STOP_ID,
-    SRC.PAYLOAD:fourKitesShipmentID::VARCHAR AS SHIPMENT_ID,    
-    {{ normalize_stop_reference_id('f.VALUE:stopReferenceId::VARCHAR') }} AS STOP_REFERENCE_ID,
-    f.VALUE:stopType::VARCHAR AS STOP_TYPE,
-    f.VALUE:status::VARCHAR AS STATUS,
-    f.VALUE:stopName::VARCHAR AS STOP_NAME,
-    f.VALUE:city::VARCHAR AS CITY,
-    f.VALUE:state::VARCHAR AS STATE,
-    f.VALUE:country::VARCHAR AS COUNTRY,    
-     {{ strip_leading_zeros_if_numeric("f.VALUE:externalAddressID::VARCHAR") }} AS EXTERNAL_ADDRESS_ID,
-    f.VALUE:latitude::FLOAT AS LATITUDE,
-    f.VALUE:longitude::FLOAT AS LONGITUDE,
-    f.VALUE:timeZone::VARCHAR AS TIME_ZONE,
-    f.VALUE:sequence AS SEQUENCE_NUM,
-    TO_TIMESTAMP_TZ(f.VALUE:arrivalTime::VARCHAR) AS ARRIVAL_TIME_TZ,
-    TO_TIMESTAMP_TZ(f.VALUE:departureTime::VARCHAR) AS DEPARTURE_TIME_TZ,
-    f.VALUE:postalCode::VARCHAR AS POSTAL_CODE,
-    f.VALUE:deleted::BOOLEAN AS DELETED,
-    f.VALUE:deletedBy::VARCHAR AS DELETED_BY,
-    TO_TIMESTAMP_TZ(f.VALUE:deletedAt::VARCHAR) AS DELETED_AT_TZ,
+    f.VALUE:customer:ID::VARCHAR AS CUSTOMER_ID,    
     SRC._SYSTEM_ID,
     SRC._STAGE_ID,
     SRC._META_FILENAME,
