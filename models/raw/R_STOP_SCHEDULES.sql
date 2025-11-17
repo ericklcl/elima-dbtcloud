@@ -19,7 +19,7 @@ WITH SRC AS (
         MD5(TO_JSON($1)) AS _META_ROW_HASH
 
         
-    FROM FROM {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }}
+    FROM {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }}
 )
 SELECT
     f.VALUE,
@@ -36,4 +36,4 @@ SELECT
     SRC._META_INGESTION_TIMESTAMP,
     SRC._META_ROW_HASH
 FROM SRC,
-     LATERAL FLATTEN(input => SRC.PAYLOAD:stops) f;
+     LATERAL FLATTEN(input => SRC.PAYLOAD:stops) f
