@@ -20,7 +20,7 @@ WITH SRC AS (
         MD5(TO_JSON($1)) AS _META_ROW_HASH
 
         
-    FROM FROM {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }}
+    FROM {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }}
 )
 SELECT
     f.VALUE:fourKitesStopID::VARCHAR AS STOP_ID,
