@@ -21,8 +21,7 @@ WITH SRC AS (
         
     FROM {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }}
 )
-SELECT
-    f.VALUE,
+SELECT    
     f.VALUE:fourKitesStopID::VARCHAR AS STOP_ID,       
     TO_TIMESTAMP_TZ(f.VALUE:schedule:appointmentTime) AS APPOINTMENT_TIME_TZ,
     TO_TIMESTAMP_TZ(f.VALUE:schedule:appointmentWindowStart::VARCHAR) AS APPOINTMENT_WINDOW_START_TZ,
@@ -37,3 +36,14 @@ SELECT
     SRC._META_ROW_HASH
 FROM SRC,
      LATERAL FLATTEN(input => SRC.PAYLOAD:stops) f
+
+{% if is_incremental() %}
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM {{ this }} AS BASE
+    WHERE SRC._META_FILENAME = BASE._META_FILENAME
+      AND SRC._META_FILE_LAST_MODIFIED = BASE._META_FILE_LAST_MODIFIED
+      AND f.VALUE:fourKitesStopID = BASE.STOP_ID
+      AND SRC._STAGE_ID = BASE._STAGE_ID      
+)
+{% endif %}

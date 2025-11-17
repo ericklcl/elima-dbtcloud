@@ -94,8 +94,7 @@ SELECT
     STOP_ID,
 
     PALLET_SEQ_RAW AS PALLET_SEQ,
-
-    PART_SEQ_RAW AS PART_SEQ,
+    PART_SEQ_RAW   AS PART_SEQ,
 
     PART_OBJ:description::varchar       AS DESCRIPTION,
     PART_OBJ:shipperPartNumber::varchar AS SHIPPER_PART_NUMBER,
@@ -112,7 +111,6 @@ SELECT
 
     TRY_TO_NUMBER(PART_OBJ:weight::varchar) AS WEIGHT_NUM,
 
-    -- ALL METADATA FIELDS:
     _system_id,
     _stage_id,
     _meta_filename,
@@ -122,3 +120,15 @@ SELECT
     _meta_row_hash
 
 FROM PARTS
+
+{% if is_incremental() %}
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM {{ this }} AS BASE
+    WHERE BASE.STOP_ID          = PARTS.STOP_ID
+      AND BASE.PALLET_SEQ       = PARTS.PALLET_SEQ_RAW
+      AND BASE.PART_SEQ         = PARTS.PART_SEQ_RAW
+      AND BASE._META_FILENAME   = PARTS._META_FILENAME
+      AND BASE._META_FILE_LAST_MODIFIED = PARTS._META_FILE_LAST_MODIFIED
+)
+{% endif %}
