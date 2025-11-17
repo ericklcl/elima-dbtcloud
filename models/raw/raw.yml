@@ -373,9 +373,7 @@ models:
   - name: R_STOP_SCHEDULES
     description: "Stop-level scheduling information extracted from the FourKites JSON payload."
 
-    columns:
-      - name: VALUE
-        description: "Full stop JSON object (raw stop struct)."
+    columns:      
 
       - name: STOP_ID
         description: "FourKites stop identifier (fourKitesStopID)."
