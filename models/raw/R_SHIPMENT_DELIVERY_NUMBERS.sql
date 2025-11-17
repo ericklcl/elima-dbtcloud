@@ -25,7 +25,7 @@ WITH STAGED AS (
 SELECT    
     SRC.PAYLOAD:fourKitesShipmentID::varchar AS SHIPMENT_ID,
     f.index + 1                             AS DELIVERY_SEQ,
-    {{ strip_leading_zeros_if_numeric("f.value::string") }} AS DELIVERY_NUMBER,
+    {{ strip_leading_zeros_if_numeric("f.value::varchar") }} AS DELIVERY_NUMBER,
     SRC.PAYLOAD:identifiers:purchaseOrderNumbers::variant AS PURCHASE_ORDER_NUMBERS,
     -- Metadata
     SRC._SYSTEM_ID,
