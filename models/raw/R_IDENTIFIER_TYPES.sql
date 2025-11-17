@@ -19,4 +19,4 @@ WITH data AS (
 )
 
 SELECT *
-FROM data;
+FROM data
