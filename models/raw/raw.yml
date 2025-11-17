@@ -231,10 +231,7 @@ models:
         description: "FourKites stop identifier (fourKitesStopID)."
 
       - name: SHIPMENT_ID
-        description: "Unique FourKites shipment ID."
-
-      - name: STOP_OBJ
-        description: "Full JSON object representing the stop."
+        description: "Unique FourKites shipment ID."      
 
       - name: STOP_TYPE
         description: "Type of stop (Pickup, Delivery, etc.)."
@@ -317,10 +314,7 @@ models:
         description: "Identifier of the stop to which the pallet belongs."
 
       - name: PALLET_SEQ
-        description: "Sequential pallet index per STOP_ID and file."
-
-      - name: PALLET_OBJ
-        description: "Full JSON object representing the pallet."
+        description: "Sequential pallet index per STOP_ID and file."      
 
       # METADATA FIELDS
       - name: _SYSTEM_ID
