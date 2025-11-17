@@ -412,7 +412,7 @@ models:
       - name: _META_ROW_HASH
         description: "MD5 hash of the full JSON record for deduplication."
 
-  - name: IDENTIFIER_TYPES
+  - name: R_IDENTIFIER_TYPES
     description: "Lookup table defining all supported identifier prefixes extracted from FourKites reference numbers."
 
     columns:
