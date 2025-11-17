@@ -25,7 +25,7 @@ WITH SRC AS (
 SELECT
     f.VALUE:fourKitesStopID::VARCHAR AS STOP_ID,
     SRC.PAYLOAD:fourKitesShipmentID::VARCHAR AS SHIPMENT_ID,    
-    {{ normalize_stop_reference_id('f.VALUE:stopReferenceId::VARCHAR') }} AS STOP_REFERENCE_ID,
+    {{ normalize_stop_reference_id("f.VALUE:stopReferenceId::VARCHAR") }} AS STOP_REFERENCE_ID,
     f.VALUE:stopType::VARCHAR AS STOP_TYPE,
     f.VALUE:status::VARCHAR AS STATUS,
     f.VALUE:stopName::VARCHAR AS STOP_NAME,
