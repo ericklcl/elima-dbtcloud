@@ -1,36 +1,29 @@
+{% macro normalize_stop_reference_id(column) %}
 {# 
-    Normalizes stop reference IDs by removing leading zeros from numeric prefix.
-    
-    Processes IDs in format "NUMBER_SUFFIX" (e.g., "000123_PICKUP" → "123_PICKUP").
-    Returns original value if pattern doesn't match or input is null.
-    
-    Examples:
-    - "000123_PICKUP" → "123_PICKUP"  
-    - "007_DELIVERY" → "7_DELIVERY"
-    - "ABC_123" → "ABC_123" (unchanged - no leading digits)
-    
-    Requires: strip_leading_zeros_if_numeric() macro
-    Pattern: ^(\d+)(_.+)$ (digits + underscore + suffix)
+  Equivalent to Python:
+    m = re.match(r'^(\d+)(_.+)$', s)
+    head = m.group(1)
+    tail = m.group(2)
+    return strip_leading_zeros_if_numeric(head) + tail
 #}
-{% macro normalize_stop_reference_id(s) %}
-    {# Return null if input is null #}
-    {% if s is none %}
-        {{ return(s) }}
-    {% endif %}
 
-    {% set input_str = s | string %}
+{% set pattern = '^(\\\\d+)(_.+)$' %}
 
-    {# Extract numeric prefix and suffix using regex groups #}
-    {% set head = "REGEXP_SUBSTR('" ~ input_str ~ "', '^(\\\\d+)(_.+)$', 1, 1, 'e', 1)" %}
-    {% set tail = "REGEXP_SUBSTR('" ~ input_str ~ "', '^(\\\\d+)(_.+)$', 1, 1, 'e', 2)" %}
+CASE
+    -- If NULL or empty
+    WHEN {{ column }} IS NULL OR {{ column }} = '' THEN {{ column }}
 
-    {# If no match, return original; if match, normalize numeric part #}
-    {% set head_sql %}
-        CASE 
-            WHEN {{ head }} IS NULL THEN '{{ input_str }}'
-            ELSE {{ strip_leading_zeros_if_numeric(head) }} || {{ tail }}
-        END
-    {% endset %}
+    -- If regex does not match, return original value
+    WHEN REGEXP_SUBSTR({{ column }}::VARCHAR, '{{ pattern }}', 1, 1, 'e', 1) IS NULL
+        THEN {{ column }}::VARCHAR
 
-    {{ return(head_sql) }}
+    ELSE
+        -- Extract head (group 1) and strip leading zeros
+        {{ strip_leading_zeros_if_numeric(
+            "REGEXP_SUBSTR(" ~ column ~ "::VARCHAR, '" ~ pattern ~ "', 1, 1, 'e', 1)"
+        ) }}
+        ||
+        -- Extract tail (group 2)
+        REGEXP_SUBSTR({{ column }}::VARCHAR, '{{ pattern }}', 1, 1, 'e', 2)
+END
 {% endmacro %}
