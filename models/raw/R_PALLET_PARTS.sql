@@ -14,7 +14,7 @@ WITH PALLETS AS (
 PARTS AS (
     SELECT
         p.STOP_ID,
-        p.P_IDX AS PALLET_SEQ,
+        p.PALLET_SEQ AS PALLET_SEQ,
         part.value AS PART_OBJ,
         part.seq AS RAW_PART_SEQ,        
         p._SYSTEM_ID,
