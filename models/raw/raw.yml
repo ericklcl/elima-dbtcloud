@@ -71,7 +71,6 @@ models:
           MD5 hash of the raw JSON record, used for tracking changes
           and ensuring deterministic incremental loading.
 
-
   - name: R_SHIPMENT_STAKEHOLDERS
     description: >
       Extracts and flattens stakeholder information from the FourKites raw
@@ -119,7 +118,6 @@ models:
         description: >
           MD5 hash of the raw JSON record, used for tracking changes
           and ensuring deterministic incremental loading.
-
 
   - name: R_SHIPMENT_DELIVERY_NUMBERS
     description: >
@@ -171,3 +169,253 @@ models:
         description: >
           MD5 hash of the raw JSON record, used for tracking changes
           and ensuring deterministic incremental loading.
+
+  - name: R_PALLET_PARTS
+    description: "Parsed pallet parts extracted from the FourKites JSON payload."
+
+    columns:
+      - name: STOP_ID
+        description: "Unique ID of the stop (FourKites stop ID)."
+
+      - name: PALLET_SEQ
+        description: "Sequential pallet index per STOP_ID and file."
+
+      - name: PART_SEQ
+        description: "Sequential part index inside the pallet."
+
+      - name: DESCRIPTION
+        description: "Part description extracted from the pallet structure."
+
+      - name: SHIPPER_PART_NUMBER
+        description: "Shipper or customer part number."
+
+      - name: QUANTITY_RAW
+        description: "Raw quantity string received from FourKites."
+
+      - name: QUANTITY_NUM
+        description: "Numeric representation of the quantity."
+
+      - name: WEIGHT_RAW
+        description: "Raw weight string received from FourKites."
+
+      - name: WEIGHT_NUM
+        description: "Numeric representation of the weight."
+
+      # METADATA FIELDS
+      - name: _SYSTEM_ID
+        description: "System identifier for the ingestion source."
+
+      - name: _STAGE_ID
+        description: "Ingestion stage identifier."
+
+      - name: _META_FILENAME
+        description: "Original filename from which data was ingested."
+
+      - name: _META_ROW_NUMBER
+        description: "Row number inside the ingested file."
+
+      - name: _META_FILE_LAST_MODIFIED
+        description: "Timestamp of last modification of the ingested file."
+
+      - name: _META_INGESTION_TIMESTAMP
+        description: "Timestamp when the file was ingested."
+
+      - name: _META_ROW_HASH
+        description: "MD5 hash of the full JSON record for deduplication."
+
+  - name: R_STOPS
+    description: "Flattened stop-level data extracted from the FourKites JSON payload."
+
+    columns:
+      - name: STOP_ID
+        description: "FourKites stop identifier (fourKitesStopID)."
+
+      - name: SHIPMENT_ID
+        description: "Unique FourKites shipment ID."
+
+      - name: STOP_OBJ
+        description: "Full JSON object representing the stop."
+
+      - name: STOP_TYPE
+        description: "Type of stop (Pickup, Delivery, etc.)."
+
+      - name: STATUS
+        description: "Stop status."
+
+      - name: STOP_NAME
+        description: "Human-readable stop name."
+
+      - name: CITY
+        description: "City where the stop occurred."
+
+      - name: STATE
+        description: "State or province for the stop."
+
+      - name: COUNTRY
+        description: "Country code for the stop."
+
+      - name: EXTERNAL_ADDRESS_ID
+        description: "External customer or address identifier."
+
+      - name: LATITUDE
+        description: "Latitude of the stop location."
+
+      - name: LONGITUDE
+        description: "Longitude of the stop location."
+
+      - name: TIME_ZONE
+        description: "Time zone of the stop location."
+
+      - name: SEQUENCE_NUM
+        description: "Sequence number of the stop."
+
+      - name: ARRIVAL_TIME_TZ
+        description: "Arrival timestamp with timezone."
+
+      - name: DEPARTURE_TIME_TZ
+        description: "Departure timestamp with timezone."
+
+      - name: POSTAL_CODE
+        description: "Postal or ZIP code of the stop."
+
+      - name: DELETED
+        description: "Indicates if the stop was marked as deleted."
+
+      - name: DELETED_BY
+        description: "User who deleted the stop, if applicable."
+
+      - name: DELETED_AT_TZ
+        description: "Timestamp when the stop was deleted."
+
+      # METADATA FIELDS
+      - name: _SYSTEM_ID
+        description: "Ingestion system identifier."
+
+      - name: _STAGE_ID
+        description: "Ingestion stage identifier."
+
+      - name: _META_FILENAME
+        description: "Original filename from which the JSON was ingested."
+
+      - name: _META_ROW_NUMBER
+        description: "Row number inside the ingested file."
+
+      - name: _META_FILE_LAST_MODIFIED
+        description: "Last modification timestamp of the file."
+
+      - name: _META_INGESTION_TIMESTAMP
+        description: "Timestamp when the ingestion occurred."
+
+      - name: _META_ROW_HASH
+        description: "Hash of the original JSON row."    
+
+  - name: R_STOP_PALLETS
+    description: "Flattened pallet-level data extracted from the FourKites stop objects."
+
+    columns:
+      - name: STOP_ID
+        description: "Identifier of the stop to which the pallet belongs."
+
+      - name: PALLET_SEQ
+        description: "Sequential pallet index per STOP_ID and file."
+
+      - name: PALLET_OBJ
+        description: "Full JSON object representing the pallet."
+
+      # METADATA FIELDS
+      - name: _SYSTEM_ID
+        description: "Ingestion system identifier."
+
+      - name: _STAGE_ID
+        description: "Ingestion stage identifier."
+
+      - name: _META_FILENAME
+        description: "Source filename from which the data was extracted."
+
+      - name: _META_ROW_NUMBER
+        description: "Row number inside the ingested file."
+
+      - name: _META_FILE_LAST_MODIFIED
+        description: "Timestamp for when the file was last modified."
+
+      - name: _META_INGESTION_TIMESTAMP
+        description: "Timestamp for when ingestion occurred."
+
+      - name: _META_ROW_HASH
+        description: "MD5 hash of the JSON record for deduplication."
+
+  - name: R_STOP_CUSTOMERS
+    description: "Stop-level customer mapping extracted from the FourKites JSON payload."
+
+    columns:
+      - name: STOP_ID
+        description: "FourKites stop identifier (fourKitesStopID)."
+
+      - name: CUSTOMER_ID
+        description: "Customer ID inside the stop object (customer.ID)."
+
+      # METADATA FIELDS
+      - name: _SYSTEM_ID
+        description: "Ingestion system identifier."
+
+      - name: _STAGE_ID
+        description: "Ingestion stage identifier."
+
+      - name: _META_FILENAME
+        description: "Source filename from which the JSON was ingested."
+
+      - name: _META_ROW_NUMBER
+        description: "Row number inside the ingested file."
+
+      - name: _META_FILE_LAST_MODIFIED
+        description: "Timestamp indicating when the file was last modified."
+
+      - name: _META_INGESTION_TIMESTAMP
+        description: "Timestamp indicating when the file was ingested."
+
+      - name: _META_ROW_HASH
+        description: "MD5 hash of the full JSON record for deduplication."
+
+  - name: R_STOP_SCHEDULES
+    description: "Stop-level scheduling information extracted from the FourKites JSON payload."
+
+    columns:
+      - name: VALUE
+        description: "Full stop JSON object (raw stop struct)."
+
+      - name: STOP_ID
+        description: "FourKites stop identifier (fourKitesStopID)."
+
+      - name: APPOINTMENT_TIME_TZ
+        description: "Scheduled appointment time with timezone."
+
+      - name: APPOINTMENT_WINDOW_START_TZ
+        description: "Start of the appointment window with timezone."
+
+      - name: APPOINTMENT_WINDOW_END_TZ
+        description: "End of the appointment window with timezone."
+
+      - name: WANT_TIME_TZ
+        description: "Customer requested time (wantTime) with timezone."
+
+      # METADATA FIELDS
+      - name: _SYSTEM_ID
+        description: "Ingestion system identifier."
+
+      - name: _STAGE_ID
+        description: "Ingestion stage identifier."
+
+      - name: _META_FILENAME
+        description: "Name of the file from which the JSON was ingested."
+
+      - name: _META_ROW_NUMBER
+        description: "Row number in the source file."
+
+      - name: _META_FILE_LAST_MODIFIED
+        description: "Timestamp indicating last file modification."
+
+      - name: _META_INGESTION_TIMESTAMP
+        description: "Timestamp indicating when the record was ingested."
+
+      - name: _META_ROW_HASH
+        description: "MD5 hash of the full JSON record for deduplication."
