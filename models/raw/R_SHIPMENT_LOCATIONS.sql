@@ -20,7 +20,7 @@ WITH SRC AS (
 
         -- Hash Row        
         md5(to_json($1)) as _META_ROW_HASH
-    FROM FOURKITES_DEV.RAW.R_FOURKITES_JSON_PAYLOAD
+    FROM {{ source('RAW','R_FOURKITES_JSON_PAYLOAD') }}
     WHERE IS_OBJECT($1:latestLocation)
 )
 SELECT
