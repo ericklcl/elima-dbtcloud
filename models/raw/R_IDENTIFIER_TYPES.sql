@@ -1,6 +1,7 @@
 {{ config(
     materialized = 'table',
-    schema = 'RAW'
+    schema = 'RAW',
+    post_hook="{{ apply_table_and_column_comments(this) }}"
 ) }}
 
 -- Static lookup table for identifier types
