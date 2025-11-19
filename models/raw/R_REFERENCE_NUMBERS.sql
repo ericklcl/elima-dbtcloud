@@ -69,7 +69,7 @@ SELECT
         WHEN TRIM(RAW_TEXT) IN (
             SELECT ID
             FROM IDS_UNIFIED
-            WHERE SHIPMENT_ID = BASE.SHIPMENT_ID
+            WHERE SHIPMENT_ID = SRC.SHIPMENT_ID
         )
         THEN TRIM(RAW_TEXT)
         ELSE NULL
