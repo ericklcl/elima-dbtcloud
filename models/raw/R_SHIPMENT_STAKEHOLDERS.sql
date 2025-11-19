@@ -2,7 +2,8 @@
   config(
     materialized='incremental',
     unique_key= ['SHIPMENT_ID', 'PARTY_ROLE', '_STAGE_ID'],
-    incremental_strategy='merge'
+    incremental_strategy='merge',
+    post_hook="{{ apply_table_and_column_comments(this) }}"
   )
 }}
 

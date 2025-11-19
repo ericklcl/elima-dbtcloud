@@ -53,3 +53,75 @@ macros:
       - name: value
         type: string
         description: The input value to process (column reference, SQL expression, or literal string)
+
+  - name: is_note_like
+    description: |
+      Determines whether a text value represents a note-like text fragment.
+      Implements the Python is_note_like logic:
+      - Empty or null → FALSE
+      - Contains ":" → FALSE
+      - Only digits → FALSE
+      - Contains keywords such as 'add ', 'required', 'precall', 'charge', etc. → TRUE
+    arguments:
+      - name: value
+        type: string
+        description: Column or expression to evaluate
+
+  - name: is_party_like
+    description: |
+      Determines whether a text value looks like a party/organization/person name.
+      Implements the Python is_party_like logic:
+      - Empty or null → FALSE
+      - Contains ":" → FALSE
+      - Phone-like strings → TRUE
+      - Only digits → FALSE
+      - Matches alphabetic name-style pattern → TRUE
+    arguments:
+      - name: value
+        type: string
+        description: Column or expression to evaluate
+
+  - name: is_phone_like
+    description: |
+      Detects phone-number-like text using a flexible regular expression supporting:
+      - Optional country code
+      - Optional parentheses around area code
+      - Separators such as space, dash, or dot  
+      Returns TRUE if the input matches a phone pattern; otherwise FALSE.
+    arguments:
+      - name: value
+        type: string
+        description: Column or expression to evaluate
+
+  - name: num_or_none
+    description: |
+      Converts a value to a numeric type when possible.
+      Implements the Python num_or_none logic:
+      - NULL → NULL
+      - Trims the string and checks NUM_DEC pattern: ^[+-]?\d+(\.\d+)?$
+      - If matched → returns TRY_TO_DOUBLE(value)
+      - Otherwise returns NULL
+    arguments:
+      - name: value
+        type: string
+        description: Column or expression to convert to numeric
+
+  - name: parse_identifier_prefix
+    description: |
+      Extracts an identifier prefix (e.g., PO, SO, CN, VT, SI, etc.) from the beginning of a text value.
+      Matches patterns like 'PO:12345' and returns only the prefix.
+      Returns NULL when no valid prefix is present.
+    arguments:
+      - name: raw_text
+        type: string
+        description: Column or expression containing the raw reference string
+
+  - name: parse_identifier_value
+    description: |
+      Extracts the value portion of an identifier in the format PREFIX:VALUE.
+      Example: 'PO:12345' → '12345'.
+      Returns NULL when no value portion is present.
+    arguments:
+      - name: raw_text
+        type: string
+        description: Column or expression containing the raw reference string

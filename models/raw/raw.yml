@@ -421,3 +421,127 @@ models:
 
       - name: DESCRIPTION
         description: "Human-readable description for each identifier type."
+
+  - name: R_FOURKITES_REFERENCE_NUMBERS
+    description: "Extracted reference numbers, identifiers, notes, parties, and stop hints from the FourKites JSON payload."
+
+    columns:
+
+      # ------------------------------
+      # Business Keys
+      # ------------------------------
+      - name: SHIPMENT_ID
+        description: "FourKites shipment identifier."
+
+      - name: REF_SEQ
+        description: "Sequence number of the reference text within the referenceNumbers array."
+
+      - name: RAW_TEXT
+        description: "Raw free-text reference string from FourKites."
+
+      # ------------------------------
+      # Identifier Parsing
+      # ------------------------------
+      - name: IDENTIFIER_TYPE
+        description: "Parsed prefix of the reference number (PO, SO, VT, etc.)."
+
+      - name: IDENTIFIER_VALUE
+        description: "Parsed value after the prefix and colon."
+
+      # ------------------------------
+      # Text Classification Flags
+      # ------------------------------
+      - name: NOTE_FLAG
+        description: "Flag indicating the text is a note or instruction (matches Python is_note_like)."
+
+      - name: PARTY_FLAG
+        description: "Flag indicating the text represents a party name or organization (matches Python is_party_like)."
+
+      - name: PHONE_FLAG
+        description: "Flag indicating the text contains a phone number."
+
+      # ------------------------------
+      # Stop Hint
+      # ------------------------------
+      - name: STOP_HINT
+        description: "If the reference text matches a stop externalAddressID or stop customer ID, this field captures that stop identifier."
+
+      # ------------------------------
+      # Metadata (same descriptions as your example)
+      # ------------------------------
+      - name: _SYSTEM_ID
+        description: "Ingestion system identifier."
+
+      - name: _STAGE_ID
+        description: "Ingestion stage identifier."
+
+      - name: _META_FILENAME
+        description: "Name of the file from which the JSON was ingested."
+
+      - name: _META_ROW_NUMBER
+        description: "Row number in the source file."
+
+      - name: _META_FILE_LAST_MODIFIED
+        description: "Timestamp indicating last file modification."
+
+      - name: _META_INGESTION_TIMESTAMP
+        description: "Timestamp indicating when the record was ingested."
+
+      - name: _META_ROW_HASH
+        description: "MD5 hash of the full JSON record for deduplication."
+
+  - name: R_FOURKITES_LATEST_LOCATION
+    description: "Latest reported geolocation for each FourKites shipment extracted from the JSON payload."
+
+    columns:
+
+      # ------------------------------
+      # Business Keys
+      # ------------------------------
+      - name: SHIPMENT_ID
+        description: "FourKites shipment identifier."
+
+      - name: LOCATION_KIND
+        description: "Type of location record. For this model, always 'LATEST'."
+
+      # ------------------------------
+      # Location Fields
+      # ------------------------------
+      - name: LATITUDE
+        description: "Latest reported latitude of the shipment."
+
+      - name: LONGITUDE
+        description: "Latest reported longitude of the shipment."
+
+      - name: PLACE_NAME
+        description: "Name of the latest location provided by FourKites."
+
+      - name: UPDATED_TIME_TZ
+        description: "Timestamp (with timezone) indicating when the location was last updated."
+
+      - name: TIME_ZONE
+        description: "Timezone associated with the latest location."
+
+      # ------------------------------
+      # Metadata (same descriptions as your example)
+      # ------------------------------
+      - name: _SYSTEM_ID
+        description: "Ingestion system identifier."
+
+      - name: _STAGE_ID
+        description: "Ingestion stage identifier."
+
+      - name: _META_FILENAME
+        description: "Name of the file from which the JSON was ingested."
+
+      - name: _META_ROW_NUMBER
+        description: "Row number in the source file."
+
+      - name: _META_FILE_LAST_MODIFIED
+        description: "Timestamp indicating last file modification."
+
+      - name: _META_INGESTION_TIMESTAMP
+        description: "Timestamp indicating when the record was ingested."
+
+      - name: _META_ROW_HASH
+        description: "MD5 hash of the full JSON record for deduplication."
