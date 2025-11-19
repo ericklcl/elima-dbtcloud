@@ -422,7 +422,7 @@ models:
       - name: DESCRIPTION
         description: "Human-readable description for each identifier type."
 
-  - name: R_FOURKITES_REFERENCE_NUMBERS
+  - name: R_REFERENCE_NUMBERS
     description: "Extracted reference numbers, identifiers, notes, parties, and stop hints from the FourKites JSON payload."
 
     columns:
@@ -490,7 +490,7 @@ models:
       - name: _META_ROW_HASH
         description: "MD5 hash of the full JSON record for deduplication."
 
-  - name: R_FOURKITES_LATEST_LOCATION
+  - name: R_SHIPMENT_LOCATIONS
     description: "Latest reported geolocation for each FourKites shipment extracted from the JSON payload."
 
     columns:
