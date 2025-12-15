@@ -39,5 +39,5 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 
 models:
-  elima_dbtcloud:
+  +elima_dbtcloud:
     # Applies to all files under models/example/
